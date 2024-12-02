@@ -26,7 +26,7 @@ class AppDatabase {
     final path = dbPath + filePath;
 
     // Hapus database lama (opsional, jika diperlukan)
-    //await deleteDatabase(path);
+    await deleteDatabase(path);
     debugPrint("Database Path: $path"); // Cek lokasi database
 
     return await openDatabase(

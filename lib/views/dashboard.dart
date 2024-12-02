@@ -72,19 +72,19 @@ class _DashboardState extends State<Dashboard>{
             },
             ),
           CardIcon(
-            cardIcon: const Icon(Icons.settings, size: 50.0, color: Colors.blueAccent,),
-            title: 'Settings',
-            toDo: (){
-              
-            },
-            ),
-          CardIcon(
             cardIcon: const Icon(Icons.no_drinks_outlined, size: 50.0, color: Colors.blueAccent,),
             title: 'Drinks',
             toDo: (){
               toDrinkPage();
             },
           ),
+          CardIcon(
+            cardIcon: const Icon(Icons.settings, size: 50.0, color: Colors.blueAccent,),
+            title: 'Settings',
+            toDo: (){
+              
+            },
+            ),
           CardIcon(
             cardIcon: const Icon(Icons.info_outline, size: 50.0, color: Colors.blueAccent,),
             title: 'Tentang Aplikasi',
