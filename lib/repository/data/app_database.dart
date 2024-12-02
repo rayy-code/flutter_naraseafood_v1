@@ -12,6 +12,7 @@ class AppDatabase {
   final String tblDrinkCart = 'tbl_drink_cart';
   final String tblOrder = "tbl_order";
   final String tblPayment = "tbl_payment";
+  final String tblSetting = "tbl_setting";
 
   Future<Database> get database async 
   {
@@ -77,7 +78,24 @@ class AppDatabase {
       pay INTEGER,
       excessMoney INTEGER
       )''');
+
+      await db.execute('''
+      CREATE TABLE $tblSetting (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      settingName String,
+      value String,
+      )''');
+
+      await db.execute('''
+      INSERT INTO $tblSetting (
+      settingName,
+      value) VALUES (
+      "loadData", "api"),
+      ("apiFood","https://www.themealdb.com/api/json/v1/1/filter.php?c=Seafood"),
+      ("apiDrink","https://www.thecocktaildb.com/api/json/v1/1/filter.php?a=Non_Alcoholic")''');
+
   }
+
 
 
 }

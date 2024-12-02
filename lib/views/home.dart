@@ -169,7 +169,7 @@ class _HomePageState extends State<HomePage> {
                 idMeal: mealsList[index].idMeal,
                 strMeal: mealsList[index].strMeal,
                 strMealThumb: mealsList[index].strMealThumb,
-                price: 240000.0,
+                price: 240000,
                 toDo: (){
                   addToCart(
                     idOrder,

@@ -208,7 +208,7 @@ class _DrinkPageState extends State<DrinkPage>
               idMeal: drinkList[index].idDrink,
               strMeal: drinkList[index].strDrink,
               strMealThumb: drinkList[index].strDrinkThumb,
-              price: 12000,
+              price: drinkList[index].price.toDouble(),
               toDo: (){
                 addDrinkToCart(
                   DrinkCart(

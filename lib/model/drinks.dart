@@ -2,11 +2,13 @@ class Drinks {
   final String idDrink;
   final String strDrink;
   final String strDrinkThumb;
+  final int price;
 
   Drinks({
     required this.idDrink,
     required this.strDrink,
     required this.strDrinkThumb,
+    required this.price
   });
 
   Map<String, dynamic> toMap(){
@@ -14,6 +16,7 @@ class Drinks {
       'idDrink': idDrink,
       'strDrink' : strDrink,
       'strDrinkThumb' : strDrinkThumb,
+      'price' : price
     };
   }
 
@@ -23,6 +26,7 @@ class Drinks {
       idDrink: json['idDrink'] as String,
       strDrink: json['strDrink'] as String,
       strDrinkThumb: json['strDrinkThumb'] as String,
+      price: json['price'] as int
     );
   }
 
