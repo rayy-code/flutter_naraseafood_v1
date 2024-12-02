@@ -27,7 +27,7 @@ class AppDatabase {
     final path = dbPath + filePath;
 
     // Hapus database lama (opsional, jika diperlukan)
-    //await deleteDatabase(path);
+    await deleteDatabase(path);
     debugPrint("Database Path: $path"); // Cek lokasi database
 
     return await openDatabase(
@@ -83,7 +83,7 @@ class AppDatabase {
       CREATE TABLE $tblSetting (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       settingName String,
-      value String,
+      value String
       )''');
 
       await db.execute('''

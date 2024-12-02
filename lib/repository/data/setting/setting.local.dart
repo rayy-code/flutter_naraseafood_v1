@@ -10,11 +10,18 @@ class SettingLocal {
     await db.insert(tblSetting, setting.toMap());
   }
 
+  //mengambil data berdasarkan nama
+  Future<String> getSetting(String nama) async {
+    final db = await AppDatabase.instance.database;
+    final result = await db.query(tblSetting, where: "settingName = ?", whereArgs: [nama]);
+    return result[0]['value'] as String;
+  }
+
   //mengupdate pengaturan
-  Future<void> updateSetting(int id, dynamic value)async {
+  Future<void> updateSetting(String settingName, dynamic value)async {
     final db = await AppDatabase.instance.database;
     await db.update(tblSetting, {
       'value' : value
-    }, where: "id = ?", whereArgs: [id]);
+    }, where: "settingName = ?", whereArgs: [settingName]);
   }
 }

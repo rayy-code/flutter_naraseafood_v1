@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:naraseafood/views/drink_page.dart';
 import 'package:naraseafood/views/home.dart';
+import 'package:naraseafood/views/setting_page.dart';
 import 'package:naraseafood/views/widgets/card_icon.dart';
 
 class Dashboard extends StatefulWidget{
@@ -33,6 +34,7 @@ class _DashboardState extends State<Dashboard>{
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.lightBlue,
+        foregroundColor: Colors.white,
         title: const Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
@@ -72,19 +74,21 @@ class _DashboardState extends State<Dashboard>{
             },
             ),
           CardIcon(
-            cardIcon: const Icon(Icons.settings, size: 50.0, color: Colors.blueAccent,),
-            title: 'Settings',
-            toDo: (){
-              
-            },
-            ),
-          CardIcon(
             cardIcon: const Icon(Icons.no_drinks_outlined, size: 50.0, color: Colors.blueAccent,),
             title: 'Drinks',
             toDo: (){
               toDrinkPage();
             },
           ),
+          CardIcon(
+            cardIcon: const Icon(Icons.settings, size: 50.0, color: Colors.blueAccent,),
+            title: 'Settings',
+            toDo: (){
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context)=> const SettingPage())
+              );
+            },
+            ),
           CardIcon(
             cardIcon: const Icon(Icons.info_outline, size: 50.0, color: Colors.blueAccent,),
             title: 'Tentang Aplikasi',
