@@ -40,7 +40,7 @@ class Drinks {
   @override
   String toString()
   {
-    return 'Drinks : {idDrink : $idDrink, strDrink : $strDrink, strDrinkThumb : $strDrinkThumb}' ;
+    return 'Drinks : {idDrink : $idDrink, strDrink : $strDrink, strDrinkThumb : $strDrinkThumb, price : $price}' ;
   }
 
 }

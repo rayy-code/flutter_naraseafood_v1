@@ -217,7 +217,7 @@ class _DrinkPageState extends State<DrinkPage>
                     strDrink: drinkList[index].strDrink,
                     strDrinkThumb: drinkList[index].strDrinkThumb,
                     qty: 1,
-                    price: 12000,
+                    price: drinkList[index].price,
                   )
                 );
                 debugPrint(drinkList[index].idDrink);

@@ -3,11 +3,14 @@ class Meals {
   final String idMeal;
   final String strMeal;
   final String strMealThumb;
+  final int price;
 
   Meals({
+
     required this.idMeal,
     required this.strMeal,
     required this.strMealThumb,
+    required this.price,
   });
 
   Map<String, dynamic> toMap()
@@ -16,6 +19,7 @@ class Meals {
       'idMeal': idMeal,
       'strMeal': strMeal,
       'strMealThumb': strMealThumb,
+      'price': price,
     };
   }
 
@@ -25,6 +29,7 @@ class Meals {
       idMeal: json['idMeal'] as String,
       strMeal: json['strMeal'] as String,
       strMealThumb: json['strMealThumb'] as String,
+      price: json['price'] as int,
     );
   }
 
@@ -37,7 +42,7 @@ class Meals {
 
   @override
   String toString() {
-    return 'Meals : {idMeal : $idMeal, strMeal : $strMeal, strMealThumb : $strMealThumb}';
+    return 'Meals : {idMeal : $idMeal, strMeal : $strMeal, strMealThumb : $strMealThumb, price : $price}';
   }
 
 

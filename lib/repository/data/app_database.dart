@@ -13,6 +13,8 @@ class AppDatabase {
   final String tblOrder = "tbl_order";
   final String tblPayment = "tbl_payment";
   final String tblSetting = "tbl_setting";
+  final String tblMeals = "tbl_meals";
+  final String tblDrinks = "tbl_drinks";
 
   Future<Database> get database async 
   {
@@ -77,6 +79,22 @@ class AppDatabase {
       totalPrice INTEGER,
       pay INTEGER,
       excessMoney INTEGER
+      )''');
+
+      await db.execute('''
+      CREATE TABLE $tblMeals (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      strMeal TEXT,
+      strMealThumb TEXT,
+      price INTEGER
+      )''');
+
+      await db.execute('''
+      CREATE TABLE $tblDrinks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      strDrink TEXT,
+      strDrinkThumb TEXT,
+      price INTEGER
       )''');
 
       await db.execute('''
