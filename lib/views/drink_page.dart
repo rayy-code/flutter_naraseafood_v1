@@ -3,15 +3,20 @@ import 'package:naraseafood/model/cart.dart';
 import 'package:naraseafood/model/drink_cart.dart';
 import 'package:naraseafood/model/drinks.dart';
 import 'package:naraseafood/model/order_model.dart';
+import 'package:naraseafood/repository/api/drink_carts.api.dart';
 import 'package:naraseafood/repository/api/drinks.api.dart';
+import 'package:naraseafood/repository/api/init_api.dart';
+import 'package:naraseafood/repository/api/orders.api.dart';
 import 'package:naraseafood/repository/data/cart_local.dart';
 import 'package:naraseafood/repository/data/drink_cart_local.dart';
 import 'package:naraseafood/repository/data/order_local.dart';
-import 'package:naraseafood/views/payment_page.dart';
+import 'package:naraseafood/views/dashboard.dart';
+import 'package:naraseafood/views/loading.dart';   
 import 'package:naraseafood/views/widgets/horizontal_card2.dart';
+import 'package:uuid/uuid.dart';
 
 class DrinkPage extends StatefulWidget{
-  final int? idMealsOrder;
+  final String? idMealsOrder;
 
   const DrinkPage({super.key, this.idMealsOrder});
 
@@ -31,16 +36,32 @@ class _DrinkPageState extends State<DrinkPage>
   List<DrinkCart> cartList = [];
   List<Cart> mealOrderedList = [];
   int countOrdered = 0;
-  int idOrder =0;
+  late String idOrder;
   int totalDrinkPrice = 0;
   int totalMealPrice = 0;
   int totalCost = 0;
+  late String idDrinkCart;
 
+  void setUuid()
+  {
+    var id = const Uuid().v4();
+    setState(() {
+      idDrinkCart = id;
+    });
+  }
 
-
+  //ambil data dari local
   Future<void> getDrinks () async {
     drinkList = await DrinksApi.getDrinks();
     
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  //ambil data dari API
+  Future<void> getDrinksApi () async {
+    drinkList = await DrinksApi.getDrinks();
     setState(() {
       isLoading = false;
     });
@@ -64,30 +85,54 @@ class _DrinkPageState extends State<DrinkPage>
   }
 
   //fungsi untuk menambahkan minuman ke keranjang
-  void addDrinkToCart(DrinkCart drink) async{
-    //mengecek apakah data sudah ada
-    List<DrinkCart> _temp = await drinkRepo.getDrinkCartByIdDrink(drink.idDrinkCart, drink.idDrink);
+  // void addDrinkToCart(DrinkCart drink) async{
+  //   //mengecek apakah data sudah ada
+  //   List<DrinkCart> _temp = await drinkRepo.getDrinkCartByIdDrink(drink.idDrinkCart, drink.idDrink);
 
-    if(_temp.length == 1)
-    {
-      int lastQty = await drinkRepo.getQtyLast(drink.idDrinkCart, drink.idDrink);
-      int newQty = lastQty + 1;
-      int newPrice = newQty * drink.price;
+  //   if(_temp.length == 1)
+  //   {
+  //     int lastQty = await drinkRepo.getQtyLast(drink.idDrinkCart, drink.idDrink);
+  //     int newQty = lastQty + 1;
+  //     int newPrice = newQty * drink.price;
 
-      await drinkRepo.updateDrinkCart(drink.idDrinkCart, drink.idDrink, newQty, newPrice);
-    }else{
-      await drinkRepo.addDrinkCart(
-        DrinkCart(
-          idDrinkCart: drink.idDrinkCart,
-          idDrink: drink.idDrink,
-          strDrink: drink.strDrink,
-          strDrinkThumb: drink.strDrinkThumb,
-          qty: drink.qty,
-          price: drink.price
-        )
-      );
+  //     await drinkRepo.updateDrinkCart(drink.idDrinkCart, drink.idDrink, newQty, newPrice);
+  //   }else{
+  //     await drinkRepo.addDrinkCart(
+  //       DrinkCart(
+  //         idDrinkCart: drink.idDrinkCart,
+  //         idDrink: drink.idDrink,
+  //         strDrink: drink.strDrink,
+  //         strDrinkThumb: drink.strDrinkThumb,
+  //         qty: drink.qty,
+  //         price: drink.price
+  //       )
+  //     );
+  //   }
+  //   getFromCart(drink.idDrinkCart);
+  // }
+
+  //add to drinkCart API
+  Future<void> addToCartApi(String idDrink, int qty, int price) async 
+  {
+    final add = await DrinkCartsApi.addToCart(idDrinkCart, idDrink, qty, price);
+    if(add){
+      cartList = await DrinkCartsApi.getDrinkCart(idDrinkCart);
+      setState(() {
+        countOrdered = cartList.length;
+      });
     }
-    getFromCart(drink.idDrinkCart);
+  }
+
+  //menghapus dari DrinkCart API
+  Future<List<DrinkCart>> deleteFromCartApi(String idDrinkCart, String idDrink) async {
+    final delete = await DrinkCartsApi.destroy(idDrinkCart, idDrink);
+    if(delete){
+      cartList = await DrinkCartsApi.getDrinkCart(idDrinkCart);
+      setState(() {
+        countOrdered = cartList.length;
+      });
+    }
+    return cartList;
   }
 
   //menghapus dari DrinkCart
@@ -138,13 +183,23 @@ class _DrinkPageState extends State<DrinkPage>
     debugPrint("total : $totalCost");
   }
 
+  //local
   Future<void> setIdOrder() async
   {
-    int maxIdOrder = await orderRepo.getIdOrderTertinggi();
-    int newIdOrder = maxIdOrder + 1;
+    //int maxIdOrder = await orderRepo.getIdOrderTertinggi();
+    //int newIdOrder = maxIdOrder + 1;
     setState(() {
       toNexPage = true;
-      idOrder = newIdOrder;
+      //idOrder = newIdOrder;
+    });
+  }
+
+  //set uuid order
+  Future<void> setUuidOrder() async
+  {
+    var id = const Uuid().v4();
+    setState(() {
+      idOrder = id;
     });
   }
 
@@ -154,6 +209,14 @@ class _DrinkPageState extends State<DrinkPage>
     setState(() {
       toNexPage = false;
     });
+  }
+
+  Future<void> addToOrderApi(idMealCart, idDrinkCart) async 
+  {
+    final add = await OrdersApi.addToOrder(idOrder, idMealCart, idDrinkCart);
+    if(add){
+      
+    }
   }
 
   Future<void> nextStep() async
@@ -166,12 +229,15 @@ class _DrinkPageState extends State<DrinkPage>
       OrderModel(
         idOrder: idOrder,
         idMealCart: widget.idMealsOrder,
-        idDrinkCart: idDrinkOrder,
+        idDrinkCart: idDrinkCart,
         totalPrice: totalCost
       )
     );
+    // Navigator.of(context).push(
+    //   MaterialPageRoute(builder: (context) => PaymentPage(idOrder: idOrder))
+    // );
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => PaymentPage(idOrder: idOrder))
+      MaterialPageRoute(builder: (context) => const Dashboard())
     );
   }
 
@@ -180,8 +246,11 @@ class _DrinkPageState extends State<DrinkPage>
   {
 
     super.initState();
-    getDrinks();
-    setId();
+    //getDrinks();
+    getDrinksApi();
+    //setId();
+    setUuid();
+    setUuidOrder();
     setIdOrder();
   }
 
@@ -207,19 +276,20 @@ class _DrinkPageState extends State<DrinkPage>
             itemBuilder: (context, index) => HorizontalCard2(
               idMeal: drinkList[index].idDrink,
               strMeal: drinkList[index].strDrink,
-              strMealThumb: drinkList[index].strDrinkThumb,
-              price: drinkList[index].price.toDouble(),
+              strMealThumb: "${InitApi.urlApp}/storage/images/drinks/${drinkList[index].strDrinkThumb}",
+              price: drinkList[index].price,
               toDo: (){
-                addDrinkToCart(
-                  DrinkCart(
-                    idDrinkCart: idDrinkOrder,
-                    idDrink: drinkList[index].idDrink,
-                    strDrink: drinkList[index].strDrink,
-                    strDrinkThumb: drinkList[index].strDrinkThumb,
-                    qty: 1,
-                    price: drinkList[index].price,
-                  )
-                );
+                // addDrinkToCart(
+                //   DrinkCart(
+                //     idDrinkCart: idDrinkOrder,
+                //     idDrink: drinkList[index].idDrink,
+                //     strDrink: drinkList[index].strDrink,
+                //     strDrinkThumb: drinkList[index].strDrinkThumb,
+                //     qty: 1,
+                //     price: drinkList[index].price,
+                //   )
+                // );
+                addToCartApi(drinkList[index].idDrink, 1, drinkList[index].price);
                 debugPrint(drinkList[index].idDrink);
               },
             )
@@ -248,7 +318,7 @@ class _DrinkPageState extends State<DrinkPage>
                           direction: Axis.vertical,
                           children: [
                             const Text("Minuman Terpilih"),
-                            Text("Order ID : $idDrinkOrder"),
+                            Text("Order ID : $idDrinkCart"),
                             ListView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
@@ -261,7 +331,7 @@ class _DrinkPageState extends State<DrinkPage>
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5.0),
                                       image: DecorationImage(
-                                        image: NetworkImage(cartList[index].strDrinkThumb),
+                                        image: NetworkImage("${InitApi.urlApp}/storage/images/drinks/${cartList[index].strDrinkThumb}", scale: 1.0),
                                         fit: BoxFit.cover,
                                       )
                                     )
@@ -270,9 +340,8 @@ class _DrinkPageState extends State<DrinkPage>
                                   subtitle: Text("Total : ${cartList[index].price}"),
                                   trailing: IconButton(
                                     onPressed: () async{
-                                      deleteDrinkFromCart(cartList[index].idDrinkCart, cartList[index].idDrink, cartList[index].price);
-
-                                       List<DrinkCart> temp = await drinkRepo.getDrinkCartById(idDrinkOrder);
+                                      //deleteDrinkFromCart(cartList[index].idDrinkCart, cartList[index].idDrink, cartList[index].price);
+                                      List<DrinkCart> temp = await deleteFromCartApi(idDrinkCart, cartList[index].idDrink);
                                       setState((){
                                         cartList = temp;
                                       });
@@ -289,7 +358,12 @@ class _DrinkPageState extends State<DrinkPage>
                             
                                 ElevatedButton(
                                   onPressed: (){
-                                    nextStep();
+                                    //nextStep();
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => LoadingPage(idMealCart: widget.idMealsOrder,idDrinkCart: idDrinkCart)
+                                      )
+                                    );
                                   },
                                   child: const Text("Bayar"),
                                 ),

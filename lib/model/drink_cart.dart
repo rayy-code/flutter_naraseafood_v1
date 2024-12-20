@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 class DrinkCart {
-  final int? id;
-  final int idDrinkCart;
+
+  final String idDrinkCart;
   final String idDrink;
   final String strDrink;
   final String strDrinkThumb;
@@ -10,7 +10,7 @@ class DrinkCart {
   final int price;
 
   DrinkCart({
-    this.id,
+
     required this.idDrinkCart,
     required this.idDrink,
     required this.strDrink,
@@ -21,7 +21,6 @@ class DrinkCart {
 
   Map<String, dynamic> toMap() {
     return {
-      'id' : id,
       'idDrinkCart' : idDrinkCart,
       'idDrink' : idDrink,
       'strDrink' : strDrink,
@@ -34,16 +33,23 @@ class DrinkCart {
   factory DrinkCart.fromMap(Map<String, dynamic> map)
   {
     return DrinkCart(
-      id: map['id']?.toInt(),
-      idDrinkCart: map['idDrinkCart']?.toInt(),
-      idDrink: map['idDrink'],
-      strDrink: map['strDrink'],
-      strDrinkThumb: map['strDrinkThumb'],
+
+      idDrinkCart: map['idDrinkCart']as String,
+      idDrink: map['idDrink'] as String,
+      strDrink: map['strDrink'] as String,
+      strDrinkThumb: map['strDrinkThumb'] as String,
       qty: map['qty']?.toInt(),
       price: map['price']?.toInt(),
     );
   }
 
   String toJson()=> json.encode(toMap());
+
+  static List<DrinkCart> cartFromSnapshot(List snapshot)
+  {
+    return snapshot.map((data){
+      return DrinkCart.fromMap(data);
+    }).toList();
+  }
 
 }

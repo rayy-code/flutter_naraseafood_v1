@@ -2,14 +2,13 @@ import 'dart:convert';
 
 class OrderModel {
 
-  final int? id;
-  final int idOrder;
-  final int? idMealCart;
-  final int? idDrinkCart;
+  final String idOrder;
+  final String? idMealCart;
+  final String? idDrinkCart;
   final int totalPrice;
 
   OrderModel({
-    this.id,
+
     required this.idOrder,
     this.idMealCart,
     this.idDrinkCart,
@@ -19,7 +18,7 @@ class OrderModel {
   Map<String, dynamic> toMap()
   {
     return {
-      'id' : id,
+
       'idOrder' : idOrder,
       'idMealCart' : idMealCart,
       'idDrinkCart' : idDrinkCart,
@@ -30,14 +29,20 @@ class OrderModel {
   factory OrderModel.fromMap(Map<String, dynamic> map)
   {
     return OrderModel(
-      id: map['id']?.toInt(),
-      idOrder: map['idOrder']?.toInt(),
-      idMealCart: map['idMealCart']?.toInt(),
-      idDrinkCart: map['idDrinkCart']?.toInt(),
+
+      idOrder: map['idOrder'] as String,
+      idMealCart: map['idMealCart'] as String,
+      idDrinkCart: map['idDrinkCart']as String,
       totalPrice: map['totalPrice']?.toInt(),
     );
   }
 
   String toJson() => json.encode(toMap());
 
+  static List<OrderModel> orderFromSnapshot(List snapshot)
+  {
+    return snapshot.map((data){
+      return OrderModel.fromMap(data);
+    }).toList();
+  }
 }

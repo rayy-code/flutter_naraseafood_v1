@@ -16,11 +16,11 @@ class DrinksApi {
 
   static Future<List<Drinks>> getDrinks() async 
   {
-    final response = await http.get(Uri.parse("https://www.thecocktaildb.com/api/json/v1/1/filter.php?a=Non_Alcoholic"));
+    final response = await http.get(Uri.parse("https://fdd3-2001-448a-2002-3b6-8d60-dbc2-203e-9fda.ngrok-free.app/api/drinks"));
 
     Map data = jsonDecode(response.body);
     List temp = [];
-    for(var i in data['drinks'])
+    for(var i in data['data']['drinks'])
     {
       temp.add(i);
     }

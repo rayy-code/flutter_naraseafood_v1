@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:naraseafood/helper/format_string.dart';
 
 class HorizontalCard2 extends StatelessWidget{
   final String idMeal;
   final String strMeal;
   final String strMealThumb;
-  final double price;
+  final int price;
   final toDo;
 
   const HorizontalCard2({
@@ -15,6 +16,8 @@ class HorizontalCard2 extends StatelessWidget{
     required this.price,
     required this.toDo,
   });
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +39,7 @@ class HorizontalCard2 extends StatelessWidget{
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.0),
                     image: DecorationImage(
-                      image: NetworkImage(strMealThumb),
+                      image: NetworkImage(strMealThumb, scale: 1.0),
                       fit: BoxFit.cover,
                     )
                   )
@@ -59,26 +62,23 @@ class HorizontalCard2 extends StatelessWidget{
                     ),
                     Expanded(
                       child: Text(
-                          "Rp. $price",
-                          style: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold),
+                          FormatString.toRupiah(price),
+                          style: const TextStyle(color: Colors.black54, fontSize: 14, fontWeight: FontWeight.bold),
                         ),
                     )
                   ],
                 ),
               ),
-              Expanded(
-                child: ElevatedButton.icon(
+              IconButton(
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(Colors.lightBlueAccent),
-                    foregroundColor: MaterialStateProperty.all(Colors.white)
-                  ),
-                  icon: const Icon(Icons.money_off_csred_rounded),
-                  onPressed: () {
+                     foregroundColor: MaterialStateProperty.all(Colors.white)
+                   ),
+                  onPressed: (){
                     toDo();
                   },
-                  label: const Text("Order"),
-                ),
-              )
+                  icon: const Icon(Icons.add_shopping_cart_rounded),
+                )
             ],
           ),
         ),
@@ -86,3 +86,14 @@ class HorizontalCard2 extends StatelessWidget{
     );
   }
 }
+// ElevatedButton.icon(
+//                   style: ButtonStyle(
+//                     backgroundColor: MaterialStateProperty.all(Colors.lightBlueAccent),
+//                     foregroundColor: MaterialStateProperty.all(Colors.white)
+//                   ),
+//                   icon: const Icon(Icons.add_shopping_cart_rounded),
+//                   onPressed: () {
+//                     toDo();
+//                   },
+//                   label: const Text("Order"),
+//                 ),

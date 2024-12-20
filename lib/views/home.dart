@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:naraseafood/model/cart.dart';
 import 'package:naraseafood/model/meals.dart';
-import 'package:naraseafood/repository/api/seafood_meals.api.dart';
+import 'package:naraseafood/repository/api/init_api.dart';
+import 'package:naraseafood/repository/api/meal_carts.api.dart';
+import 'package:naraseafood/repository/api/meals.api.dart';
 import 'package:naraseafood/repository/data/cart_local.dart';
 import 'package:naraseafood/views/drink_page.dart';
+import 'package:naraseafood/views/loading.dart';
 
 import 'package:naraseafood/views/widgets/horizontal_card2.dart';
+import 'package:uuid/uuid.dart';
 
 class HomePage extends StatefulWidget {
 
@@ -25,13 +29,22 @@ class _HomePageState extends State<HomePage> {
   late List<Meals> mealsList;
   bool _isLoading = true;
   final mealRepo = CartLocal();
+  late String idMealOrder ;
 
   @override
   void initState()
   {
     super.initState();
     getMeals();
-    setId();
+    setUuid();
+    //setId();
+  }
+
+  void setUuid() async {
+    var id = const Uuid().v4();
+    setState(() {
+      idMealOrder = id;
+    });
   }
 
   void setId ()async {
@@ -43,39 +56,64 @@ class _HomePageState extends State<HomePage> {
   }
  
   //membuat fungsi untuk menambahkan ke cart yang disimpan dalam sqlite
-  void addToCart(idOrder, idMeal, strMeal, strMealThumb, qty, price) async
-  {
-    //mengecek apakah sudah dimasukkan kedalam order atau blum
-    bool result = await mealRepo.checkIdCartAndMeal(idOrder, idMeal);
+  // void addToCart(idOrder, idMeal, strMeal, strMealThumb, qty, price) async
+  // {
+  //   //mengecek apakah sudah dimasukkan kedalam order atau blum
+  //   bool result = await mealRepo.checkIdCartAndMeal(idOrder, idMeal);
 
-  if (result == false) {
-    // Jika belum ada, tambahkan item ke cart
+  // if (result == false) {
+  //   // Jika belum ada, tambahkan item ke cart
     
-    await mealRepo.addCart(
-      Cart(
-        idCart: idOrder,
-        idMeal: idMeal,
-        strMeal: strMeal,
-        strMealThumb: strMealThumb,
-        qty: qty,
-        price: price,
-      )
-    );
-  } else {
-    // Jika sudah ada, tambahkan qty atau update lainnya
-   int lastQty = await mealRepo.getLastQty(idOrder, idMeal);
-   int newQty = lastQty+=1;
-   int newPrice = price*newQty;
-   //List<Cart> toD = data;
+  //   await mealRepo.addCart(
+  //     Cart(
+  //       idCart: idOrder,
+  //       idMeal: idMeal,
+  //       strMeal: strMeal,
+  //       strMealThumb: strMealThumb,
+  //       qty: qty,
+  //       price: price,
+  //     )
+  //   );
+  // } else {
+  //   // Jika sudah ada, tambahkan qty atau update lainnya
+  //  int lastQty = await mealRepo.getLastQty(idOrder, idMeal);
+  //  int newQty = lastQty+=1;
+  //  int newPrice = price*newQty;
+  //  //List<Cart> toD = data;
  
-    await mealRepo.updateCart(newQty, newPrice, idMeal, idOrder);
-  }
-    getFromCart(idOrder);
-    setState(() {
+  //   await mealRepo.updateCart(newQty, newPrice, idMeal, idOrder);
+  // }
+  //   getFromCart(idOrder);
+  //   setState(() {
       
-    });
-    debugPrint(idMeal);
+  //   });
+  //   debugPrint(idMeal);
     
+  // }
+
+  //add to cart api
+  Future<void> addToCartApi(String idMeal, int qty, int totalPrice) async {
+    final add = await MealCartsApi.addToCart(idMealOrder,idMeal, qty, totalPrice);
+    if(add)
+    {
+      cartList = await MealCartsApi.getCartById(idMealOrder);
+      setState(() {
+        countOrdered = cartList.length;
+      });
+    }
+  }
+
+  //menghapus atau mengurangi qty secara API
+  Future<List<Cart>> deleteFromCartApi(String idMealCart,String idMeal) async {
+    final delete = await MealCartsApi.destroy(idMealCart, idMeal);
+    if(delete)
+    {
+      cartList = await MealCartsApi.getCartById(idMealCart);
+      setState(() {
+        countOrdered = cartList.length;
+      });
+    }
+    return cartList;
   }
 
   //menghapus atau mengurangi qty data dari cart
@@ -98,6 +136,14 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  //mengambil data dari cart
+  Future<void> getFromCartApi(idMealCart) async {
+    cartList = await MealCartsApi.getCartById(idMealCart);
+    setState(() {
+      countOrdered = cartList.length;
+    });
+  }
+
   //menampilkan yang sudah dimasukkan ke dalam keranjang
   Future<void> getFromCart(idCart) async {
 
@@ -110,7 +156,7 @@ class _HomePageState extends State<HomePage> {
 
 
   Future<void> getMeals() async {
-    mealsList = await SeafoodMealsApi.getMeals();
+    mealsList = await MealsApi.getMeals();
     setState(() {
       _isLoading = false;
     });
@@ -123,11 +169,11 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         
         title: const Text('Pesanan Baru'),
-        actions: [
-          IconButton(icon: const Icon(Icons.archive_outlined), onPressed: (){}),
-          IconButton(onPressed: (){}, icon: const Icon(Icons.notifications)),
-          IconButton(onPressed: (){}, icon: const Icon(Icons.logout))
-        ]
+        // actions: [
+        //   IconButton(icon: const Icon(Icons.archive_outlined), onPressed: (){}),
+        //   IconButton(onPressed: (){}, icon: const Icon(Icons.notifications)),
+        //   IconButton(onPressed: (){}, icon: const Icon(Icons.logout))
+        // ]
       ),
       body: ListView(
         children: <Widget>[
@@ -168,16 +214,21 @@ class _HomePageState extends State<HomePage> {
               itemBuilder: (context, index) => HorizontalCard2(
                 idMeal: mealsList[index].idMeal,
                 strMeal: mealsList[index].strMeal,
-                strMealThumb: mealsList[index].strMealThumb,
-                price: 240000,
+                strMealThumb: "${InitApi.urlApp}/storage/images/meals/${mealsList[index].strMealThumb}",
+                price: mealsList[index].price,
                 toDo: (){
-                  addToCart(
-                    idOrder,
+                  // addToCart(
+                  //   idOrder,
+                  //   mealsList[index].idMeal,
+                  //   mealsList[index].strMeal,
+                  //   "http://10.0.2.2:8000/storage/images/meals/${mealsList[index].strMealThumb}",
+                  //   1,
+                  //   mealsList[index].price
+                  // );
+                  addToCartApi(
                     mealsList[index].idMeal,
-                    mealsList[index].strMeal,
-                    mealsList[index].strMealThumb,
                     1,
-                    24000
+                    mealsList[index].price
                   );
                 },
                 ),
@@ -190,6 +241,7 @@ class _HomePageState extends State<HomePage> {
       children: [
         FloatingActionButton(
           onPressed: () {
+            //getFromCartApi(idMealOrder);
             showModalBottomSheet(
               context: context,
               builder: (context){
@@ -205,7 +257,7 @@ class _HomePageState extends State<HomePage> {
                           direction: Axis.vertical,
                           children: [
                             const Text("Makanan Terpilih"),
-                            Text("Order ID : $idOrder"),
+                            Text("Order ID : $idMealOrder"),
                             ListView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
@@ -218,7 +270,7 @@ class _HomePageState extends State<HomePage> {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5.0),
                                       image: DecorationImage(
-                                        image: NetworkImage(cartList[index].strMealThumb),
+                                        image: NetworkImage("${InitApi.urlApp}/storage/images/meals/${cartList[index].strMealThumb}",scale: 1.0),
                                         fit: BoxFit.cover,
                                       )
                                     )
@@ -227,9 +279,9 @@ class _HomePageState extends State<HomePage> {
                                   subtitle: Text("Total : ${cartList[index].price}"),
                                   trailing: IconButton(
                                     onPressed: () async{
-                                      removeFromCart(cartList[index].idCart, cartList[index].idMeal, cartList[index].price);
-
-                                      List<Cart> temp = await mealRepo.getCartById(idOrder);
+                                      //removeFromCart(cartList[index].idCart, cartList[index].idMeal, cartList[index].price);
+                                      List<Cart> temp = await deleteFromCartApi(cartList[index].idMealCart, cartList[index].idMeal);
+                                      //List<Cart> temp = await MealCartsApi.getCartById(cartList[index].idMealCart);
                                       setState((){
                                         cartList = temp;
                                       });
@@ -247,7 +299,7 @@ class _HomePageState extends State<HomePage> {
                                   onPressed: (){
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
-                                        builder: (context) => DrinkPage(idMealsOrder: idOrder)
+                                        builder: (context) => DrinkPage(idMealsOrder: idMealOrder)
                                       )
                                     );
                                   },
@@ -256,9 +308,13 @@ class _HomePageState extends State<HomePage> {
                                 
                                 ElevatedButton(
                                   onPressed: (){
-
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => LoadingPage(idMealCart: idMealOrder,idDrinkCart: null)
+                                      )
+                                    );
                                   },
-                                  child: const Text("Pilih Metode Pembayaran"),
+                                  child: const Text("Bayar"),
                                 ),
 
                               ],
@@ -272,7 +328,7 @@ class _HomePageState extends State<HomePage> {
               }
             );
           },
-          child: const Icon(Icons.shop_rounded),
+          child: const Icon(Icons.shopping_cart_checkout),
         ),
         Positioned(
           top: 5.0,

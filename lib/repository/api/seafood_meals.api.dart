@@ -24,4 +24,9 @@ class SeafoodMealsApi {
     }
     return Meals.mealsFromSnapshot(_temp);
   }
+
+  //mengirim data dengan POST
+  // static Future<void> postMeals(Meals meals) async {
+  //   final response = await http.post(Uri.parse('https://www.themealdb.com/api/json/v'));
+  // }
 }

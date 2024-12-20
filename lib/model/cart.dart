@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 class Cart {
-  final int? id;
-  final int idCart;
+
+  final String idMealCart;
   final String idMeal;
   final String strMeal;
   final String strMealThumb;
@@ -10,8 +10,8 @@ class Cart {
   final int price;
 
   Cart({
-    this.id,
-    required this.idCart,
+
+    required this.idMealCart,
     required this.idMeal,
     required this.strMeal,
     required this.strMealThumb,
@@ -22,10 +22,10 @@ class Cart {
   Map<String, dynamic> toMap()
   {
     return {
-      'id': id,
-      'idCart': idCart,
+  
+      'idCart': idMealCart,
       'idMeal': idMeal,
-      ' strMeal': strMeal,
+      'strMeal': strMeal,
       'strMealThumb': strMealThumb,
       'qty': qty,
       'price': price,
@@ -34,13 +34,13 @@ class Cart {
 
   factory Cart.fromMap(Map<String, dynamic>map){
     return Cart(
-      id: map['id']?.toInt(),
-      idCart: map['idCart']?.toInt(),
-      idMeal: map['idMeal'],
-      strMeal: map['strMeal'],
-      strMealThumb: map['strMealThumb'],
-      qty: map['qty']?.toInt(),
-      price: map['price']?.toInt(),
+
+      idMealCart: map['idMealCart'] as String,
+      idMeal: map['idMeal'] as String,
+      strMeal: map['strMeal'] as String,
+      strMealThumb: map['strMealThumb'] as String,
+      qty: map['qty'],
+      price: map['price'],
     );
   }
 
@@ -50,8 +50,8 @@ class Cart {
     Cart.fromMap(json.decode(source));
 
   Cart copyWith({
-    int? id,
-    int? idCart,
+    
+    String? idMealCart,
     String? idMeal,
     String? strMeal,
     String? strMealThumb,
@@ -59,8 +59,7 @@ class Cart {
     int? price,
   }){
     return Cart(
-      id: id ?? this.id,
-      idCart: idCart ?? this.idCart,
+      idMealCart: idMealCart ?? this.idMealCart,
       idMeal: idMeal ?? this.idMeal,
       strMeal: strMeal ?? this.strMeal,
       strMealThumb: strMealThumb ?? this.strMealThumb,
@@ -68,4 +67,12 @@ class Cart {
       price: price ?? this.price,
     );
   }
+
+  static List<Cart> mealsFromSnapshot(List snapshot)
+  {
+    return snapshot.map((data){
+      return Cart.fromMap(data);
+    }).toList();
+  }
+
 }
